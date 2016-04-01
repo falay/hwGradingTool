@@ -21,34 +21,52 @@ find -name "*zip" | while read File ;
 
 
 # ***************** cd each folder and compile and execute *****************
-find "./" -maxdepth 1 -mindepth 1 -type d | while read hwFolder ; 	
-	do	
-		if [ "$hwFolder" != "./Ans" ] ; then	
-			cd "$hwFolder" ;
+find "./" -maxdepth 1 -mindepth 1 -type d | while read DIR ; 	
+	do	 
+		if [ "$DIR" != "./Ans" ] ; then	
+			cd "$DIR" ;
 			make ;			
-			hwExe = $( find "./" -maxdepth 1 -mindepth 1 -executable -type f ) ;
-			
-			totalScore = 0 ;
-			testCase[0] = "HelloWorld"
-			testCase[1] = "Syntaxerrornearunexpectedtoken"
-			testCase[2] = "JointheStackOverflowcommunityto"
-			testCase[3] = "For the Wikipedia policies regarding the use of lyrics"
-			testCase[4] = "Lyrics are words that"
-			
+			hwExe=$(find "./" -maxdepth 1 -mindepth 1 -executable -type f)  ;
+			ID=$(basename $DIR) ;
+						
+			testCase[0]="HelloWorld"
+			testCase[1]="Syntaxerrornearunexpectedtoken"
+			testCase[2]="JointheStackOverflowcommunityto"
+			testCase[3]="For the Wikipedia policies regarding the use of lyrics"
+			testCase[4]="Lyrics are words that"			
+									
+			declare -i totalScore  ;
+			totalScore=0 ;
 			for(( i=0; i<5; i++ )) 
 			do
-				./"$hwExe" testCase[i] >> "$hwFolder_$i.txt" ;
-				if [ $( diff $hwFolder_$i.txt ../Ans/ans_$i.txt ) = "" ] ; then
-					totalScore += 20 ;
-					echo "Testcase_$i is correct\n" >> "$hwFolder_result.txt" ;
-				else
-					echo "Wrong answer, your testcase_$i answer: " >> "$hwFolder_result.txt" ;
-					cat "$DIR_$i.txt" >> "$hwFolder_result.txt" ;
-					echo "\n" >> "$hwFolder_result.txt" ;
+				
+				echo "*************Testcase $i*************" >> "$ID.score";
+			
+				# Check if there's a hard-coded testcase
+				HardCoded=$(grep -r "${testCase[$i]}") ;
+				if [ $? -eq 0 ] ; then
+					echo "HardCoded" >> "$ID.score" ;
+					printf "*************************************\n\n" >> "$ID.score" ;
+					continue ;
 				fi
+				
+				("$hwExe" "${testCase[$i]}") > "$i.txt" ;
+				Result=$(diff $i.txt ../Ans/ans_$i.txt) ;
+			
+				if [ $? -eq 0 ] ; then
+					totalScore+=20 ;
+					echo "Correct" >> "$ID.score" ;
+				else
+					echo "Wrong answer, your testcase_$i answer: " >> "$ID.score" ;
+					cat "$i.txt" >> "$ID.score" ;
+					printf "\n" >> "$ID.score" ;
+				fi
+				
+				printf "*************************************\n\n" >> "$ID.score" ;
 			done	
 			
-			echo "Total score is $totalSore" >> "$hwFolder_result.txt" ;			
+			echo "$ID's total score is $totalScore" >> "$ID.score" ;			
+			rm -rf *txt
 			cd .. ;
 		fi
 		
