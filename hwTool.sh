@@ -13,11 +13,11 @@
 
 # ***************** Unzip all the zip file *****************
 
-#find -name "*zip" | while read File ; 
-#	do
-#		unzip ${File}		
-#		rm -rf ${File}
-#	done
+find -name "*zip" | while read File ; 
+	do
+		unzip ${File}		
+		rm -rf ${File}
+	done
 
 
 # ***************** cd each folder and compile and execute *****************
